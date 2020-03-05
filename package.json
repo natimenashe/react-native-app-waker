@@ -1,0 +1,14 @@
+{
+  "name": "react-native-app-waker",
+  "version": "0.0.1",
+  "author": "Nati Menashe",
+  "private": false,
+  "license": "The",
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest"
+  },
+  "peerDependencies": {
+    "react-native": ">=0.38.0"
+  }
+}
