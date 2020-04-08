@@ -23,6 +23,7 @@ public class AlarmWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        Log.i("ReactNativeAppWaker", "$$$alarm worker started");
         String alarmID = getInputData().getString("alarmID");
 
         Context applicationContext = getApplicationContext();
@@ -33,7 +34,7 @@ public class AlarmWorker extends Worker {
         launchIntent.putExtra("alarmID", alarmID);
 
         applicationContext.startActivity(launchIntent);
-        Log.i("ReactNativeAppWaker", "AlarmReceiver: Launching: " + packageName);
+        Log.i("ReactNativeAppWaker", "$$$alarm worker ended");
         return Result.success();
     }
 }

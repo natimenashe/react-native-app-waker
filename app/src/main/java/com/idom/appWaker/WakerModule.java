@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
@@ -48,6 +49,7 @@ public class WakerModule extends ReactContextBaseJavaModule {
      */
     @ReactMethod
     public final void setAlarmWorker(String id, double timestamp, boolean inexact) {
+        Log.i("ReactNativeAppWaker", "$$$ in setAlarmWorker");
         Data.Builder dataBuilder = new Data.Builder();
         dataBuilder.put("alarmID", id);
         OneTimeWorkRequest wakerAlarmRequest = new OneTimeWorkRequest.Builder(AlarmWorker.class)
@@ -70,8 +72,10 @@ public class WakerModule extends ReactContextBaseJavaModule {
      */
     @ReactMethod
     public final void setAlarm(String id, double timestamp, boolean inexact) {
+        Log.i("ReactNativeAppWaker", "$$$ in setAlarm");
         PendingIntent pendingIntent = createPendingIntent(id);
-        long timestampLong = (long)timestamp; // React Bridge doesn't understand longs
+        //long timestampLong = (long)timestamp; // React Bridge doesn't understand longs
+        long timestampLong = System.currentTimeMillis()+5000;
         // get the alarm manager, and schedule an alarm that calls the receiver
         // We will use setAlarmClock because we want an indicator to show in the status bar.
         // If you want to modify it and are unsure what to method to use, check https://plus.google.com/+AndroidDevelopers/posts/GdNrQciPwqo

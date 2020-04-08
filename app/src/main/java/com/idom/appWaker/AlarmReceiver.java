@@ -13,6 +13,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     private void launchApplication(Context context, String alarmID) {
+        Log.i("ReactNativeAppWaker", "$$$alarm receiver started");
         String packageName = context.getApplicationContext().getPackageName();
         Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
 
@@ -20,6 +21,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         launchIntent.putExtra("alarmID", alarmID);
 
         context.startActivity(launchIntent);
-        Log.i("ReactNativeAppWaker", "AlarmReceiver: Launching: " + packageName);
+        Log.i("ReactNativeAppWaker", "$$$alarm receiver ended");
     }
 }
