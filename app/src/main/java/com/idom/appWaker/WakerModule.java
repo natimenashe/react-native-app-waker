@@ -6,20 +6,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.widget.Toast;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 public class WakerModule extends ReactContextBaseJavaModule {
     private static ReactApplicationContext reactContext;
 
-    private static final String DURATION_LONG_KEY = "LONG";
-    private static final String DURATION_SHORT_KEY = "SHORT";
 
     public WakerModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -36,6 +37,29 @@ public class WakerModule extends ReactContextBaseJavaModule {
         final Map<String, Object> constants = new HashMap<>();
         return constants;
     }
+
+    /**
+     * Creates or overwrites an alarm that launches the main application at the specified timestamp.
+     * You can set multiple alarms by using different ids.
+     *
+     * @param id        The id identifying this alarm.
+     * @param timestamp When to fire off the alarm.
+     * @param inexact   Determines if the alarm should be inexact to save on battery power.
+     */
+    @ReactMethod
+    public final void setAlarmWorker(String id, double timestamp, boolean inexact) {
+        Data.Builder dataBuilder = new Data.Builder();
+        dataBuilder.put("alarmID", id);
+        OneTimeWorkRequest wakerAlarmRequest = new OneTimeWorkRequest.Builder(AlarmWorker.class)
+                .setInputData(dataBuilder.build())
+                .setInitialDelay(5000, TimeUnit.MILLISECONDS)
+                //.setInitialDelay((long)timestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .build();
+
+        Context applicationContext = reactContext.getApplicationContext();
+        WorkManager.getInstance(applicationContext).enqueue(wakerAlarmRequest);
+    }
+
 
     /**
      * Creates or overwrites an alarm that launches the main application at the specified timestamp.
