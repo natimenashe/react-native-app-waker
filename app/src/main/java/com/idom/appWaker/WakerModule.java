@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
@@ -13,6 +14,7 @@ import androidx.work.WorkManager;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.idom.appWaker.permissions.PermissionsManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,20 +64,21 @@ public class WakerModule extends ReactContextBaseJavaModule {
         WorkManager.getInstance(applicationContext).enqueue(wakerAlarmRequest);
     }
 
+    @ReactMethod
+    public final boolean isDrawOverlayPermissionEnabled() {
+        return Settings.canDrawOverlays(getReactApplicationContext());
+    }
 
-    /**
-     * Creates or overwrites an alarm that launches the main application at the specified timestamp.
-     * You can set multiple alarms by using different ids.
-     * @param id The id identifying this alarm.
-     * @param timestamp When to fire off the alarm.
-     * @param inexact Determines if the alarm should be inexact to save on battery power.
-     */
+    @ReactMethod
+    public final void navigateToPermissionsWindow() {
+        PermissionsManager.navigateToPermissionsWindow(getReactApplicationContext(), getCurrentActivity());
+    }
+
     @ReactMethod
     public final void setAlarm(String id, double timestamp, boolean inexact) {
-        Log.i("ReactNativeAppWaker", "$$$ in setAlarm");
+        Log.i("ReactNativeAppWaker", "setting alarm manager");
         PendingIntent pendingIntent = createPendingIntent(id);
-        //long timestampLong = (long)timestamp; // React Bridge doesn't understand longs
-        long timestampLong = System.currentTimeMillis()+5000;
+        long timestampLong = (long)timestamp; // React Bridge doesn't understand longs
         // get the alarm manager, and schedule an alarm that calls the receiver
         // We will use setAlarmClock because we want an indicator to show in the status bar.
         // If you want to modify it and are unsure what to method to use, check https://plus.google.com/+AndroidDevelopers/posts/GdNrQciPwqo
