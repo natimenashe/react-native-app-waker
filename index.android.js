@@ -24,7 +24,15 @@ export default class AppWaker {
 
     static isPermissionWindowNavigationNeeded() {
         return NativeModules.AppWaker.isPermissionWindowNavigationNeeded()
+
+
     }
+
+    static async isPermissionWindowNavigationNeeded (){
+            return await NativeModules.AppWaker.isPermissionWindowNavigationNeeded();
+    }
+
+
 
     static navigateToPermissionsWindow() {
         return NativeModules.AppWaker.navigateToPermissionsWindow()

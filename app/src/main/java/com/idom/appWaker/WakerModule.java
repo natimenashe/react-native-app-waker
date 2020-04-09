@@ -11,9 +11,7 @@ import android.util.Log;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.*;
 import com.idom.appWaker.permissions.PermissionsManager;
 
 import java.util.HashMap;
@@ -65,10 +63,12 @@ public class WakerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public final boolean isPermissionWindowNavigationNeeded() {
+    public final void isPermissionWindowNavigationNeeded(final Promise promise) {
         Log.i("ReactNativeAppWaker", String.format("checking if permissions windows need to be displayed. build: %s, canDrawOverlay: %s", Build.VERSION.SDK_INT,
                 Settings.canDrawOverlays(getReactApplicationContext())));
-        return !Settings.canDrawOverlays(getReactApplicationContext()) && Build.VERSION.SDK_INT > Build.VERSION_CODES.O;
+        boolean result = !Settings.canDrawOverlays(getReactApplicationContext()) && Build.VERSION.SDK_INT > Build.VERSION_CODES.O;
+        promise.resolve(result);
+
     }
 
     @ReactMethod
