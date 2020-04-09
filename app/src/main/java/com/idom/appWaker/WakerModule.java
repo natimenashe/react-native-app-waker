@@ -66,7 +66,7 @@ public class WakerModule extends ReactContextBaseJavaModule {
     public final void isPermissionWindowNavigationNeeded(final Promise promise) {
         Log.i("ReactNativeAppWaker", String.format("checking if permissions windows need to be displayed. build: %s, canDrawOverlay: %s", Build.VERSION.SDK_INT,
                 Settings.canDrawOverlays(getReactApplicationContext())));
-        boolean result = !Settings.canDrawOverlays(getReactApplicationContext()) && Build.VERSION.SDK_INT > Build.VERSION_CODES.O;
+        boolean result = !Settings.canDrawOverlays(getReactApplicationContext()) && Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1;
         promise.resolve(result);
 
     }
