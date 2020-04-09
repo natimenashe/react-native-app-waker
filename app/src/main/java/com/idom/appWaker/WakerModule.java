@@ -65,8 +65,10 @@ public class WakerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public final boolean isDrawOverlayPermissionEnabled() {
-        return Settings.canDrawOverlays(getReactApplicationContext());
+    public final boolean isPermissionWindowNavigationNeeded() {
+        Log.i("ReactNativeAppWaker", String.format("checking if permissions windows need to be displayed. build: %s, canDrawOverlay: %s", Build.VERSION.SDK_INT,
+                Settings.canDrawOverlays(getReactApplicationContext())));
+        return !Settings.canDrawOverlays(getReactApplicationContext()) && Build.VERSION.SDK_INT > Build.VERSION_CODES.O;
     }
 
     @ReactMethod
@@ -78,11 +80,11 @@ public class WakerModule extends ReactContextBaseJavaModule {
     public final void setAlarm(String id, double timestamp, boolean inexact) {
         Log.i("ReactNativeAppWaker", "setting alarm manager");
         PendingIntent pendingIntent = createPendingIntent(id);
-        long timestampLong = (long)timestamp; // React Bridge doesn't understand longs
+        long timestampLong = (long) timestamp; // React Bridge doesn't understand longs
         // get the alarm manager, and schedule an alarm that calls the receiver
         // We will use setAlarmClock because we want an indicator to show in the status bar.
         // If you want to modify it and are unsure what to method to use, check https://plus.google.com/+AndroidDevelopers/posts/GdNrQciPwqo
-        if(!inexact) {
+        if (!inexact) {
 //      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
 //        getAlarmManager().setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timestampLong, pendingIntent);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)

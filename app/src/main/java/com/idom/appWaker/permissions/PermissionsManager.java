@@ -16,11 +16,6 @@ import com.facebook.react.bridge.ReactApplicationContext;
 public class PermissionsManager {
 
     public static void navigateToPermissionsWindow(ReactApplicationContext reactApplicationContext, Activity currentActivity){
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O || Settings.canDrawOverlays(reactApplicationContext)) {
-            Log.i("ReactNativeAppWaker", String.format("No need to navigate to permissions. build: %s, canDrawOverlay: %s", Build.VERSION.SDK_INT,
-                    Settings.canDrawOverlays(reactApplicationContext)));
-            return;
-        }
         Log.i("ReactNativeAppWaker", String.format("navigating to permissions. build: %s, canDrawOverlay: %s", Build.VERSION.SDK_INT,
                 Settings.canDrawOverlays(reactApplicationContext)));
         Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,

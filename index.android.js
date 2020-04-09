@@ -22,8 +22,8 @@ export default class AppWaker {
         NativeModules.AppWaker.clearAlarm(id)
     }
 
-    static isDrawOverlayPermissionEnabled() {
-        return NativeModules.AppWaker.isDrawOverlayPermissionEnabled()
+    static isPermissionWindowNavigationNeeded() {
+        return NativeModules.AppWaker.isPermissionWindowNavigationNeeded()
     }
 
     static navigateToPermissionsWindow() {
