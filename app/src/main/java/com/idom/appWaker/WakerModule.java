@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static android.app.AlarmManager.RTC_WAKEUP;
+
 
 public class WakerModule extends ReactContextBaseJavaModule {
     private static ReactApplicationContext reactContext;
@@ -84,22 +86,8 @@ public class WakerModule extends ReactContextBaseJavaModule {
         Log.i("ReactNativeAppWaker", "setting alarm manager");
         PendingIntent pendingIntent = createPendingIntent(id);
         long timestampLong = (long) timestamp; // React Bridge doesn't understand longs
-        // get the alarm manager, and schedule an alarm that calls the receiver
-        // We will use setAlarmClock because we want an indicator to show in the status bar.
-        // If you want to modify it and are unsure what to method to use, check https://plus.google.com/+AndroidDevelopers/posts/GdNrQciPwqo
-        if (!inexact) {
-//      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-//        getAlarmManager().setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timestampLong, pendingIntent);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                getAlarmManager().setAlarmClock(new AlarmManager.AlarmClockInfo(timestampLong, pendingIntent), pendingIntent);
-            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-                getAlarmManager().setExact(AlarmManager.RTC_WAKEUP, timestampLong, pendingIntent);
-            else
-                getAlarmManager().set(AlarmManager.RTC_WAKEUP, timestampLong, pendingIntent);
-        } else {
-            getAlarmManager().set(AlarmManager.RTC_WAKEUP, timestampLong, pendingIntent);
-        }
-        Context context = getReactApplicationContext();
+        getAlarmManager().setAlarmClock(new AlarmManager.AlarmClockInfo(timestampLong, pendingIntent), pendingIntent);
+        getAlarmManager().setExactAndAllowWhileIdle(RTC_WAKEUP, timestampLong, pendingIntent);
     }
 
     @ReactMethod
