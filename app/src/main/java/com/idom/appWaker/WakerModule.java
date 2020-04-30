@@ -9,6 +9,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import com.facebook.react.bridge.*;
@@ -41,27 +42,40 @@ public class WakerModule extends ReactContextBaseJavaModule {
         return constants;
     }
 
-    /**
-     * Creates or overwrites an alarm that launches the main application at the specified timestamp.
-     * You can set multiple alarms by using different ids.
-     *
-     * @param id        The id identifying this alarm.
-     * @param timestamp When to fire off the alarm.
-     * @param inexact   Determines if the alarm should be inexact to save on battery power.
-     */
     @ReactMethod
-    public final void setAlarmWorker(String id, double timestamp, boolean inexact) {
-        Log.i("ReactNativeAppWaker", "$$$ in setAlarmWorker");
+    public final void setAlarmWorker(String id, double timestamp) {
+        Log.i("ReactNativeAppWaker", "in setAlarmWorker");
         Data.Builder dataBuilder = new Data.Builder();
         dataBuilder.put("alarmID", id);
         OneTimeWorkRequest wakerAlarmRequest = new OneTimeWorkRequest.Builder(AlarmWorker.class)
                 .setInputData(dataBuilder.build())
-                .setInitialDelay(5000, TimeUnit.MILLISECONDS)
-                //.setInitialDelay((long)timestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                //.setInitialDelay(5000, TimeUnit.MILLISECONDS)
+                .setInitialDelay((long)timestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
         Context applicationContext = reactContext.getApplicationContext();
-        WorkManager.getInstance(applicationContext).enqueue(wakerAlarmRequest);
+        WorkManager.getInstance(applicationContext).enqueueUniqueWork(id, ExistingWorkPolicy.REPLACE, wakerAlarmRequest);
+    }
+
+    @ReactMethod
+    public final void clearAlarmWorker(String id) {
+        Log.i("ReactNativeAppWaker", "$$$ in clearAlarmWorker");
+        Context applicationContext = reactContext.getApplicationContext();
+        WorkManager.getInstance(applicationContext).cancelUniqueWork(id);
+    }
+
+    @ReactMethod
+    public final void setAlarm(String id, double timestamp, boolean inexact) {
+        Log.i("ReactNativeAppWaker", "setting alarm manager");
+        PendingIntent pendingIntent = createPendingIntent(id);
+        long timestampLong = (long) timestamp; // React Bridge doesn't understand longs
+        getAlarmManager().setAlarmClock(new AlarmManager.AlarmClockInfo(timestampLong, pendingIntent), pendingIntent);
+    }
+
+    @ReactMethod
+    public final void clearAlarm(String id) {
+        PendingIntent pendingIntent = createPendingIntent(id);
+        getAlarmManager().cancel(pendingIntent);
     }
 
     @ReactMethod
@@ -79,21 +93,6 @@ public class WakerModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public final void navigateToPermissionsWindow() {
         PermissionsManager.navigateToPermissionsWindow(getReactApplicationContext(), getCurrentActivity());
-    }
-
-    @ReactMethod
-    public final void setAlarm(String id, double timestamp, boolean inexact) {
-        Log.i("ReactNativeAppWaker", "setting alarm manager");
-        PendingIntent pendingIntent = createPendingIntent(id);
-        long timestampLong = (long) timestamp; // React Bridge doesn't understand longs
-        getAlarmManager().setAlarmClock(new AlarmManager.AlarmClockInfo(timestampLong, pendingIntent), pendingIntent);
-        //getAlarmManager().setExactAndAllowWhileIdle(RTC_WAKEUP, timestampLong, pendingIntent);
-    }
-
-    @ReactMethod
-    public final void clearAlarm(String id) {
-        PendingIntent pendingIntent = createPendingIntent(id);
-        getAlarmManager().cancel(pendingIntent);
     }
 
     private PendingIntent createPendingIntent(String id) {
