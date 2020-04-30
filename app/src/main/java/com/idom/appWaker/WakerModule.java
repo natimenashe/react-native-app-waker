@@ -44,6 +44,11 @@ public class WakerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public final void setAlarmWorker(String id, double timestamp) {
+        if(Build.MANUFACTURER.equalsIgnoreCase("xiaomi")){
+            Log.i("ReactNativeAppWaker", "xiaomi device detected");
+            setAlarm(id, timestamp, false);
+            return;
+        }
         Log.i("ReactNativeAppWaker", "in setAlarmWorker");
         Data.Builder dataBuilder = new Data.Builder();
         dataBuilder.put("alarmID", id);
@@ -59,6 +64,11 @@ public class WakerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public final void clearAlarmWorker(String id) {
+        if(Build.MANUFACTURER.equalsIgnoreCase("xiaomi")){
+            Log.i("ReactNativeAppWaker", "xiaomi device detected");
+            clearAlarm(id);
+            return;
+        }
         Log.i("ReactNativeAppWaker", "$$$ in clearAlarmWorker");
         Context applicationContext = reactContext.getApplicationContext();
         WorkManager.getInstance(applicationContext).cancelUniqueWork(id);
