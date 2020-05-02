@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.v4.app.AlarmManagerCompat;
 import android.util.Log;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -81,7 +80,7 @@ public class WakerModule extends ReactContextBaseJavaModule {
         PendingIntent pendingIntent = createPendingIntent(id);
         long timestampLong = (long) timestamp; // React Bridge doesn't understand longs
         //getAlarmManager().setAlarmClock(new AlarmManager.AlarmClockInfo(timestampLong, pendingIntent), pendingIntent);
-        AlarmManagerCompat.setExactAndAllowWhileIdle(getAlarmManager(), RTC_WAKEUP,timestampLong, pendingIntent);
+        getAlarmManager().setExactAndAllowWhileIdle(RTC_WAKEUP,timestampLong, pendingIntent);
     }
 
     @ReactMethod
