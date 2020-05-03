@@ -76,7 +76,7 @@ public class WakerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public final void setAlarm(String id, double timestamp, boolean inexact) {
-        Log.i("ReactNativeAppWaker", "setExactAndAllowWhileIdle alarm manager");
+        Log.i("ReactNativeAppWaker", "setAlarmClock# alarm manager");
         PendingIntent pendingIntent = createPendingIntent(id);
         long timestampLong = (long) timestamp; // React Bridge doesn't understand longs
         getAlarmManager().setAlarmClock(new AlarmManager.AlarmClockInfo(timestampLong, pendingIntent), pendingIntent);
