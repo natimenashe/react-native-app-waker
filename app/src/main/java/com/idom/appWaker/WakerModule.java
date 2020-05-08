@@ -2,10 +2,14 @@ package com.idom.appWaker;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.PersistableBundle;
 import android.provider.Settings;
 import android.util.Log;
 import androidx.work.Data;
@@ -76,11 +80,11 @@ public class WakerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public final void setAlarm(String id, double timestamp, boolean inexact) {
-        Log.i("ReactNativeAppWaker", "setAlarmClock# alarm manager");
-        PendingIntent pendingIntent = createPendingIntent(id);
-        long timestampLong = (long) timestamp; // React Bridge doesn't understand longs
-        getAlarmManager().setAlarmClock(new AlarmManager.AlarmClockInfo(timestampLong, pendingIntent), pendingIntent);
-        //getAlarmManager().setExact(RTC_WAKEUP,timestampLong, pendingIntent);
+        createJob(id);
+//        Log.i("ReactNativeAppWaker", "setAlarmClock# alarm manager");
+//        PendingIntent pendingIntent = createPendingIntent(id);
+//        long timestampLong = (long) timestamp; // React Bridge doesn't understand longs
+//        getAlarmManager().setAlarmClock(new AlarmManager.AlarmClockInfo(timestampLong, pendingIntent), pendingIntent);
     }
 
     @ReactMethod
@@ -116,6 +120,18 @@ public class WakerModule extends ReactContextBaseJavaModule {
         intent.setData(Uri.parse("id://" + id));
         intent.setAction(String.valueOf(id));
         return PendingIntent.getBroadcast(context, 0, intent, 0);
+    }
+
+    private void createJob(String alarmId) {
+        PersistableBundle persistableBundle = new PersistableBundle();
+        persistableBundle.putString("alarmID",alarmId);
+        ComponentName serviceComponent = new ComponentName(getReactApplicationContext(), AlarmScheduledJob.class);
+        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
+        builder.setMinimumLatency(1 * 1000); // wait at least
+        builder.setOverrideDeadline(5 * 1000); // maximum delay
+        builder.setExtras(persistableBundle);
+        JobScheduler jobScheduler = getReactApplicationContext().getSystemService(JobScheduler.class);
+        jobScheduler.schedule(builder.build());
     }
 
     private AlarmManager getAlarmManager() {
