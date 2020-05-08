@@ -80,7 +80,7 @@ public class WakerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public final void setAlarm(String id, double timestamp, boolean inexact) {
-        createJob(id);
+        createJob(id, (long) timestamp);
 //        Log.i("ReactNativeAppWaker", "setAlarmClock# alarm manager");
 //        PendingIntent pendingIntent = createPendingIntent(id);
 //        long timestampLong = (long) timestamp; // React Bridge doesn't understand longs
@@ -122,13 +122,13 @@ public class WakerModule extends ReactContextBaseJavaModule {
         return PendingIntent.getBroadcast(context, 0, intent, 0);
     }
 
-    private void createJob(String alarmId) {
+    private void createJob(String alarmId, long timestamp) {
         PersistableBundle persistableBundle = new PersistableBundle();
         persistableBundle.putString("alarmID",alarmId);
         ComponentName serviceComponent = new ComponentName(getReactApplicationContext(), AlarmScheduledJob.class);
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-        builder.setMinimumLatency(1 * 1000); // wait at least
-        builder.setOverrideDeadline(5 * 1000); // maximum delay
+        builder.setMinimumLatency(timestamp - System.currentTimeMillis()); // wait at least
+        //builder.setOverrideDeadline(5 * 1000); // maximum delay
         builder.setExtras(persistableBundle);
         JobScheduler jobScheduler = getReactApplicationContext().getSystemService(JobScheduler.class);
         jobScheduler.schedule(builder.build());
