@@ -2,6 +2,7 @@ package com.idom.appWaker;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -13,13 +14,12 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import com.facebook.react.bridge.*;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.idom.appWaker.permissions.PermissionsManager;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static android.app.AlarmManager.RTC_WAKEUP;
 
 
 public class WakerModule extends ReactContextBaseJavaModule {
@@ -90,6 +90,14 @@ public class WakerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public final void test(String id) {
+        Log.i("ReactNativeAppWaker", "on test! ");
+        WritableMap payload = Arguments.createMap();
+        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit("onStartup", payload);
+    }
+
+    @ReactMethod
     public final void isPermissionWindowNavigationNeeded(final Promise promise) {
         Log.i("ReactNativeAppWaker", String.format("checking if permissions windows need to be displayed. build: %s, canDrawOverlay: %s", Build.VERSION.SDK_INT,
                 Settings.canDrawOverlays(getReactApplicationContext())));
@@ -119,5 +127,15 @@ public class WakerModule extends ReactContextBaseJavaModule {
 
     private AlarmManager getAlarmManager() {
         return (AlarmManager) getReactApplicationContext().getSystemService(Context.ALARM_SERVICE);
+    }
+    public static class StartupReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i("ReactNativeAppWaker", "StartupReceiver onReceive! ");
+            WritableMap payload = Arguments.createMap();
+            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit("onStartup", payload);
+        }
     }
 }

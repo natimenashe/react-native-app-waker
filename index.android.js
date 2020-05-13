@@ -39,6 +39,13 @@ export default class AppWaker {
         NativeModules.AppWaker.clearAlarm(id)
     }
 
+    static test(id) {
+        if(!(typeof id === 'string' || typeof id === 'number'))
+            throw new Error('AppWaker.test: `id` must be a number or a string.')
+        id = id.toString()  // parse to string
+        NativeModules.AppWaker.test(id)
+    }
+
     static isPermissionWindowNavigationNeeded() {
         return NativeModules.AppWaker.isPermissionWindowNavigationNeeded()
 
