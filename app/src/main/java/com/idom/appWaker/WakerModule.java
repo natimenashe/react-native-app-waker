@@ -1,11 +1,7 @@
 package com.idom.appWaker;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
+
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
@@ -22,23 +18,12 @@ import java.util.concurrent.TimeUnit;
 
 
 public class WakerModule extends ReactContextBaseJavaModule {
-
-    public final static String SHARED_PREFS_NAME = "WATCHME_PREFS";
     private static ReactApplicationContext reactContext;
-    private static WakerModule singleInstance;
 
 
     public WakerModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
-        singleInstance = this;
-    }
-
-    public static WakerModule getInstance() {
-        if (singleInstance == null) {
-            Log.i("ReactNativeAppWaker", "WakerModule singleInstance is null");
-        }
-        return singleInstance;
     }
 
     @Override
@@ -86,19 +71,14 @@ public class WakerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public final void setAlarm(String id, double timestamp, boolean inexact) {
-        Log.i("ReactNativeAppWaker", "setAlarmClock# alarm manager");
-        PendingIntent pendingIntent = createPendingIntent(id);
-        persistAlarm(id, timestamp);
-        long timestampLong = (long) timestamp; // React Bridge doesn't understand longs
-        getAlarmManager().setAlarmClock(new AlarmManager.AlarmClockInfo(timestampLong, pendingIntent), pendingIntent);
+        AlarmManagerCreator alarmManagerCreator = new AlarmManagerCreator();
+        alarmManagerCreator.setAlarm(getReactApplicationContext(), id, timestamp);
     }
 
     @ReactMethod
     public final void clearAlarm(String id) {
-        Log.i("ReactNativeAppWaker", "in clearAlarm manager");
-        PendingIntent pendingIntent = createPendingIntent(id);
-        removePersistedAlarm(id);
-        getAlarmManager().cancel(pendingIntent);
+        AlarmManagerCreator alarmManagerCreator = new AlarmManagerCreator();
+        alarmManagerCreator.clearAlarm(getReactApplicationContext(), id);
     }
 
     @ReactMethod
@@ -123,34 +103,5 @@ public class WakerModule extends ReactContextBaseJavaModule {
         PermissionsManager.navigateToPermissionsWindow(getReactApplicationContext(), getCurrentActivity());
     }
 
-    private PendingIntent createPendingIntent(String id) {
-        Context context = getReactApplicationContext();
-        // create the pending intent
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        // set unique alarm ID to identify it. Used for clearing and seeing which one fired
-        // public boolean filterEquals(Intent other) compare the action, data, type, package, component, and categories, but do not compare the extra
-        intent.setData(Uri.parse("id://" + id));
-        intent.setAction(String.valueOf(id));
-        return PendingIntent.getBroadcast(context, 0, intent, 0);
-    }
 
-    private AlarmManager getAlarmManager() {
-        return (AlarmManager) getReactApplicationContext().getSystemService(Context.ALARM_SERVICE);
-    }
-
-    private void persistAlarm(String id, double timestamp) {
-        Log.i("ReactNativeAppWaker", "persist alarm: " + id);
-        SharedPreferences sharedPreferences = getReactApplicationContext().getSharedPreferences(SHARED_PREFS_NAME, 0);
-        SharedPreferences.Editor edit = sharedPreferences.edit();
-        edit.putLong(id, (long) timestamp);
-        edit.apply();
-    }
-
-    private void removePersistedAlarm(String id) {
-        Log.i("ReactNativeAppWaker", "removing persisted alarm: " + id);
-        SharedPreferences sharedPreferences = getReactApplicationContext().getSharedPreferences(SHARED_PREFS_NAME, 0);
-        SharedPreferences.Editor edit = sharedPreferences.edit();
-        edit.remove(id);
-        edit.apply();
-    }
 }

@@ -8,7 +8,7 @@ import android.util.Log;
 
 import java.util.Map;
 
-import static com.idom.appWaker.WakerModule.SHARED_PREFS_NAME;
+import static com.idom.appWaker.AlarmManagerCreator.SHARED_PREFS_NAME;
 
 public class StartupReceiver extends BroadcastReceiver {
 
@@ -18,12 +18,10 @@ public class StartupReceiver extends BroadcastReceiver {
         SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFS_NAME, 0);
         Map<String, ?> all = sharedPreferences.getAll();
         for (String alarmId : all.keySet()) {
-            Log.i("ReactNativeAppWaker", "rescheduling alarm: " + alarmId);
-            WakerModule wakerModule = WakerModule.getInstance();
-            if (wakerModule == null) {
-                return;
-            }
-            wakerModule.setAlarm(alarmId, (double) sharedPreferences.getLong(alarmId, -1), false);
+            AlarmManagerCreator alarmManagerCreator = new AlarmManagerCreator();
+            double timestamp = sharedPreferences.getLong(alarmId, -1);
+            Log.i("ReactNativeAppWaker", "rescheduling alarm: " + alarmId + ", timestamp:" + timestamp);
+            alarmManagerCreator.setAlarm(context, alarmId, timestamp);
         }
     }
 }
