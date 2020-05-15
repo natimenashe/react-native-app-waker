@@ -25,11 +25,20 @@ public class WakerModule extends ReactContextBaseJavaModule {
 
     public final static String SHARED_PREFS_NAME = "WATCHME_PREFS";
     private static ReactApplicationContext reactContext;
+    private static WakerModule singleInstance;
 
 
     public WakerModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
+        singleInstance = this;
+    }
+
+    public static WakerModule getInstance() {
+        if (singleInstance == null) {
+            Log.i("ReactNativeAppWaker", "WakerModule singleInstance is null");
+        }
+        return singleInstance;
     }
 
     @Override
@@ -130,7 +139,7 @@ public class WakerModule extends ReactContextBaseJavaModule {
     }
 
     private void persistAlarm(String id, double timestamp) {
-        Log.i("ReactNativeAppWaker", "persist alarm: "+id);
+        Log.i("ReactNativeAppWaker", "persist alarm: " + id);
         SharedPreferences sharedPreferences = getReactApplicationContext().getSharedPreferences(SHARED_PREFS_NAME, 0);
         SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.putLong(id, (long) timestamp);
@@ -138,7 +147,7 @@ public class WakerModule extends ReactContextBaseJavaModule {
     }
 
     private void removePersistedAlarm(String id) {
-        Log.i("ReactNativeAppWaker", "removing persisted alarm: "+id);
+        Log.i("ReactNativeAppWaker", "removing persisted alarm: " + id);
         SharedPreferences sharedPreferences = getReactApplicationContext().getSharedPreferences(SHARED_PREFS_NAME, 0);
         SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.remove(id);
