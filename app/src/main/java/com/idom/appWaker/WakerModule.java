@@ -2,9 +2,9 @@ package com.idom.appWaker;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -14,7 +14,6 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import com.facebook.react.bridge.*;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.idom.appWaker.permissions.PermissionsManager;
 
 import java.util.HashMap;
@@ -23,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 
 public class WakerModule extends ReactContextBaseJavaModule {
+
+    public final static String SHARED_PREFS_NAME = "WATCHME_PREFS";
     private static ReactApplicationContext reactContext;
 
 
@@ -44,7 +45,7 @@ public class WakerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public final void setAlarmWorker(String id, double timestamp) {
-        if(Build.MANUFACTURER.equalsIgnoreCase("xiaomi")){
+        if (Build.MANUFACTURER.equalsIgnoreCase("xiaomi")) {
             Log.i("ReactNativeAppWaker", "xiaomi device detected");
             setAlarm(id, timestamp, false);
             return;
@@ -55,7 +56,7 @@ public class WakerModule extends ReactContextBaseJavaModule {
         OneTimeWorkRequest wakerAlarmRequest = new OneTimeWorkRequest.Builder(AlarmWorker.class)
                 .setInputData(dataBuilder.build())
                 //.setInitialDelay(5000, TimeUnit.MILLISECONDS)
-                .setInitialDelay((long)timestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setInitialDelay((long) timestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
         Context applicationContext = reactContext.getApplicationContext();
@@ -64,7 +65,7 @@ public class WakerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public final void clearAlarmWorker(String id) {
-        if(Build.MANUFACTURER.equalsIgnoreCase("xiaomi")){
+        if (Build.MANUFACTURER.equalsIgnoreCase("xiaomi")) {
             Log.i("ReactNativeAppWaker", "xiaomi device detected");
             clearAlarm(id);
             return;
@@ -78,6 +79,7 @@ public class WakerModule extends ReactContextBaseJavaModule {
     public final void setAlarm(String id, double timestamp, boolean inexact) {
         Log.i("ReactNativeAppWaker", "setAlarmClock# alarm manager");
         PendingIntent pendingIntent = createPendingIntent(id);
+        persistAlarm(id, timestamp);
         long timestampLong = (long) timestamp; // React Bridge doesn't understand longs
         getAlarmManager().setAlarmClock(new AlarmManager.AlarmClockInfo(timestampLong, pendingIntent), pendingIntent);
     }
@@ -86,15 +88,13 @@ public class WakerModule extends ReactContextBaseJavaModule {
     public final void clearAlarm(String id) {
         Log.i("ReactNativeAppWaker", "in clearAlarm manager");
         PendingIntent pendingIntent = createPendingIntent(id);
+        removePersistedAlarm(id);
         getAlarmManager().cancel(pendingIntent);
     }
 
     @ReactMethod
     public final void test(String id) {
         Log.i("ReactNativeAppWaker", "on test! ");
-        WritableMap payload = Arguments.createMap();
-        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit("onStartup", payload);
     }
 
     @ReactMethod
@@ -128,14 +128,20 @@ public class WakerModule extends ReactContextBaseJavaModule {
     private AlarmManager getAlarmManager() {
         return (AlarmManager) getReactApplicationContext().getSystemService(Context.ALARM_SERVICE);
     }
-    public static class StartupReceiver extends BroadcastReceiver {
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.i("ReactNativeAppWaker", "StartupReceiver onReceive! ");
-            WritableMap payload = Arguments.createMap();
-            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                    .emit("onStartup", payload);
-        }
+    private void persistAlarm(String id, double timestamp) {
+        Log.i("ReactNativeAppWaker", "persist alarm: "+id);
+        SharedPreferences sharedPreferences = getReactApplicationContext().getSharedPreferences(SHARED_PREFS_NAME, 0);
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.putLong(id, (long) timestamp);
+        edit.apply();
+    }
+
+    private void removePersistedAlarm(String id) {
+        Log.i("ReactNativeAppWaker", "removing persisted alarm: "+id);
+        SharedPreferences sharedPreferences = getReactApplicationContext().getSharedPreferences(SHARED_PREFS_NAME, 0);
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.remove(id);
+        edit.apply();
     }
 }
