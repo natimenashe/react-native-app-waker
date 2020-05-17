@@ -37,7 +37,7 @@ public class AlarmManagerCreator {
         SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFS_NAME, 0);
         SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.clear();
-        edit.apply();
+        edit.commit();
     }
 
     private PendingIntent createPendingIntent(Context context, String id) {
