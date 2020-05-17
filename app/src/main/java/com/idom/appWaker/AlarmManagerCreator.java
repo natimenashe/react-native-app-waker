@@ -32,6 +32,14 @@ public class AlarmManagerCreator {
         getAlarmManager(context).cancel(pendingIntent);
     }
 
+    public void removeAllPersistedAlarms(Context context) {
+        Log.i("ReactNativeAppWaker", "removing all persisted alarms");
+        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFS_NAME, 0);
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.clear();
+        edit.apply();
+    }
+
     private PendingIntent createPendingIntent(Context context, String id) {
         // create the pending intent
         Intent intent = new Intent(context, AlarmReceiver.class);

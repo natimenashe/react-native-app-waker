@@ -46,6 +46,10 @@ export default class AppWaker {
         NativeModules.AppWaker.test(id)
     }
 
+    static removeAllPersistedAlarms() {
+        NativeModules.AppWaker.removeAllPersistedAlarms()
+    }
+
     static isPermissionWindowNavigationNeeded() {
         return NativeModules.AppWaker.isPermissionWindowNavigationNeeded()
 

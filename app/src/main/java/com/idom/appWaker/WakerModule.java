@@ -82,6 +82,13 @@ public class WakerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public final void removeAllPersistedAlarms() {
+        Log.i("ReactNativeAppWaker", "on remove persisted alarms! ");
+        AlarmManagerCreator alarmManagerCreator = new AlarmManagerCreator();
+        alarmManagerCreator.removeAllPersistedAlarms(getReactApplicationContext());
+    }
+
+    @ReactMethod
     public final void test(String id) {
         Log.i("ReactNativeAppWaker", "on test! ");
     }
