@@ -52,8 +52,10 @@ export default class AppWaker {
 
     static isPermissionWindowNavigationNeeded() {
         return NativeModules.AppWaker.isPermissionWindowNavigationNeeded()
+    }
 
-
+    static getDeviceInfo() {
+        return NativeModules.AppWaker.getDeviceInfo()
     }
 
     static async isPermissionWindowNavigationNeeded (){

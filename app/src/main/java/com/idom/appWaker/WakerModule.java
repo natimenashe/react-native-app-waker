@@ -106,6 +106,16 @@ public class WakerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public final void getDeviceInfo(final Promise promise) {
+        Log.i("ReactNativeAppWaker", "getting device info");
+        WritableMap map = Arguments.createMap();
+        map.putString("manufacturer", Build.MANUFACTURER);
+        map.putString("androidVersion", String.valueOf(Build.VERSION.SDK_INT));
+        map.putString("deviceModel", String.valueOf(Build.MODEL));
+        promise.resolve(map);
+    }
+
+    @ReactMethod
     public final void navigateToPermissionsWindow() {
         PermissionsManager.navigateToPermissionsWindow(getReactApplicationContext(), getCurrentActivity());
     }
