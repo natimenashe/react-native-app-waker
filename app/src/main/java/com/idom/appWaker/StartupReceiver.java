@@ -20,8 +20,10 @@ public class StartupReceiver extends BroadcastReceiver {
         for (String alarmId : all.keySet()) {
             AlarmManagerCreator alarmManagerCreator = new AlarmManagerCreator();
             double timestamp = sharedPreferences.getLong(alarmId, -1);
-            Log.i("ReactNativeAppWaker", "rescheduling alarm: " + alarmId + ", timestamp:" + timestamp);
-            alarmManagerCreator.setAlarm(context, alarmId, timestamp);
+            if(timestamp>System.currentTimeMillis()) {
+                Log.i("ReactNativeAppWaker", "rescheduling alarm: " + alarmId + ", timestamp:" + timestamp);
+                alarmManagerCreator.setAlarm(context, alarmId, timestamp);
+            }
         }
     }
 }
