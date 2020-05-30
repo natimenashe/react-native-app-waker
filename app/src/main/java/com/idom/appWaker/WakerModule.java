@@ -89,8 +89,8 @@ public class WakerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public final void test(String id) {
-        Log.i("ReactNativeAppWaker", "on test! ");
+    public final void test(String param) {
+        Log.i("ReactNativeAppWaker", "on test! "+ param);
     }
 
     @ReactMethod
