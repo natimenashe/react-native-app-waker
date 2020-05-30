@@ -41,7 +41,7 @@ export default class AppWaker {
 
     static test(param) {
         param = param.toString()  // parse to string
-        NativeModules.AppWaker.test(id)
+        NativeModules.AppWaker.test(param)
     }
 
     static removeAllPersistedAlarms() {
